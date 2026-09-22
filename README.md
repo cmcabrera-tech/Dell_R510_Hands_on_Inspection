@@ -93,8 +93,8 @@ The objective was **not** to fully repair or return the server to production ser
 | Front Storage | 4 x Dell-labeled Seagate 146 GB 15K SAS hot-swap drives | Physical drive labels and front bays |
 | Empty Front Bays | 2 visible carriers contained no drives | Physical inspection |
 | Internal Storage | 2 x Western Digital Red WD10JFCX 1 TB SATA drives | Physical labels |
-| RAID Controller 1 | Dell PERC H700 Integrated, DP/N `0R374M` | Physical controller label |
-| RAID Controller 2 | Dell PERC H800, firmware package `12.10.2-0004` | POST |
+| RAID Controller 1 | Dell PERC H700 Integrated, Memory 512MB | Physical controller label |
+| RAID Controller 2 | Dell PERC H800, firmware package `12.10.2-0004`, Memory 512MB | POST, Physical inspection |
 | RAID Battery | Dell lithium-ion battery, type `FR463`, 3.7 V, 7 Wh | Physical label |
 | Network | Integrated Broadcom 5716 dual-port Gigabit Ethernet | BIOS and rear I/O inspection |
 | Power | 2 x Dell/Delta 750 W hot-swap power supplies | Physical labels |
@@ -222,12 +222,7 @@ The server contains two Dell PowerEdge RAID Controller (PERC) adapters.
 The internal RAID controller was identified as a:
 
 **Dell PERC H700 Integrated**
-
-Visible identification included:
-
-- Dell PERC H700 Integrated
-- Dell DP/N `0R374M`
-
+**Memory/cache: Netlist 1RX16 512MB**
 During the physical inspection, the memory/cache module associated with the RAID hardware near the two internal 1 TB drives was found loose or not fully seated.
 
 The module was carefully reseated before the next startup attempt.
@@ -243,6 +238,7 @@ Because memory was also installed before the successful second startup, the rese
 The second RAID adapter was identified during POST as a:
 
 **Dell PERC H800**
+**Memory/cache: Netlist 1RX16 512MB**
 
 During the physical inspection, the memory/cache module associated with the second RAID adapter appeared visibly arched, forced, or mechanically stressed.
 
