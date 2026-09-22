@@ -473,7 +473,7 @@ Additional photographs can be found in the [`evidence/`](evidence/) directory.
 |---|---|
 | [`evidence/`](evidence/) | Selected photographs from the physical inspection |
 | [`notes/fault-analysis.md`](notes/fault-analysis.md) | Technical reasoning behind the fault assessment |
-| [`docs/Dell_R510_Components.xlsx`](docs/Dell_R510_Components.xlsx) | Internal_Components_report |
+| [`docs/Dell_R510_Components.xlsx`](docs/Dell_R510_Components.xlsx) | Internal Components Report |
 | [`docs/Dell_PowerEdge_R510_Hands_On_Inspection_Report.pdf`](docs/Dell_PowerEdge_R510_Hands_On_Inspection_Report.pdf) | Formal inspection report |
 
 ---
