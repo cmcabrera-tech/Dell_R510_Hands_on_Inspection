@@ -1,9 +1,0 @@
-.DS_Store
-Thumbs.db
-*.tmp
-~$*.docx
-node_modules
-.pptx-build/
-.codex-finalizer/
-.rendered-*/
-
