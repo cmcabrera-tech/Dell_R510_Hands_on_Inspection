@@ -170,11 +170,143 @@ CPU 2 installed with no memory.
 
 The physical layout supports this message: three 4 GB Samsung registered DIMMs were installed in the CPU1 bank, while the CPU2 memory bank was empty. The server can detect the memory, but the topology does not follow the expected balanced configuration for two installed processors.
 
-### RAID error
+## Storage Inspection
+
+### Front SAS Hot-Swap Drives
+
+![Labels on the removed front drives](evidence/04-front-drive-labels.jpeg)
+
+The populated front drive carriers were removed far enough to inspect the actual drive labels.
+
+Four installed drives were identified as Dell-labeled Seagate Cheetah 15K.7 SAS drives.
+
+Visible specifications included:
+
+- Capacity: 146 GB each
+- Interface: SAS
+- Rotational speed: 15,000 RPM
+- Hot-swap capable
+- Visible model: `ST3300657SS-H`
+- Firmware: `EH02`
+
+Two visible front carriers contained no drives.
+
+The printed labels on the drive carriers were not treated as authoritative evidence because a carrier label does not necessarily identify the disk physically installed inside it.
+
+The drives were returned to their original bays after documentation.
+
+---
+
+### Internal SATA Drives
+
+![One of the two internal Western Digital Red drives](evidence/05-internal-wd-red-drive.jpeg)
+
+Two Western Digital Red `WD10JFCX` 1 TB SATA drives were identified inside the chassis.
+
+The drives were mounted internally near the RAID hardware.
+
+Together they provide approximately **2 TB of raw internal storage capacity**.
+
+Their RAID membership, SMART health, filesystem condition, and data state were not verified.
+
+---
+
+## RAID Hardware Inspection
+
+The server contains two Dell PowerEdge RAID Controller (PERC) adapters.
+
+### Dell PERC H700 Integrated
+
+![Dell PERC H700 Integrated](evidence/07-PERC-H700.jpeg)
+
+The internal RAID controller was identified as a:
+
+**Dell PERC H700 Integrated**
+
+Visible identification included:
+
+- Dell PERC H700 Integrated
+- Dell DP/N `0R374M`
+
+During the physical inspection, the memory/cache module associated with the RAID hardware near the two internal 1 TB drives was found loose or not fully seated.
+
+The module was carefully reseated before the next startup attempt.
+
+This was documented as a physical hardware finding.
+
+Because memory was also installed before the successful second startup, the reseated RAID cache module cannot independently be identified as the confirmed cause of the original no-video condition.
+
+---
+
+### Dell PERC H800
+
+The second RAID adapter was identified during POST as a:
+
+**Dell PERC H800**
+
+During the physical inspection, the memory/cache module associated with the second RAID adapter appeared visibly arched, forced, or mechanically stressed.
+
+Because the module appeared physically abnormal, it was intentionally **not removed, reseated, or manipulated** during the inspection.
+
+The condition was documented as a visual hardware concern.
+
+Later during POST, the PERC H800 reported an SDRAM-related fault, making this physically abnormal module an important diagnostic observation.
+
+However, the visual deformation alone does not prove that the module caused the controller fault.
+
+---
+
+### RAID Battery
+
+![Dell RAID cache battery](evidence/06-raid-battery.jpeg)
+
+A Dell lithium-ion RAID battery was identified near the internal drives.
+
+Visible label information included:
+
+- Dell Type: `FR463`
+- Dell DP/N: `0NU209`
+- Voltage: 3.7 V
+- Capacity: 7 Wh
+
+The battery's charge capacity and health were not tested during this inspection.
+
+---
+
+## Second Power-On Test
+
+After installing three memory modules in the CPU1 memory bank and reseating the loose RAID memory/cache module, the server was connected to power again.
+
+On the second startup attempt, the server produced video output successfully and proceeded through POST.
+
+This allowed the inspection to continue into POST and BIOS documentation.
+
+Because more than one hardware condition was changed before the successful startup, the restored video output cannot be attributed to a single corrective action with certainty.
+
+---
+
+## POST and BIOS Evidence
+
+### Memory Warning
+
+![POST warning showing CPU 2 installed with no memory](evidence/09-post-memory-warning.jpeg)
+
+POST detected both installed processors and 12 GB of memory but reported:
+
+```text
+Warning: Unsupported memory configuration detected.
+CPU 2 installed with no memory.
+```
+
+This confirms that the memory topology was not balanced across both processors.
+
+---
+
+### RAID Error
 
 ![POST screen showing the PERC H800 fault](evidence/10-post-raid-error.jpeg)
 
-POST reported the following for the PERC H800:
+POST reported the following messages for the Dell PERC H800:
 
 ```text
 F/W is in Fault State
@@ -183,59 +315,229 @@ RAID Adapter Unrecoverable Error
 Please check the SDRAM connection
 ```
 
-POST also reported zero virtual drives on that adapter. This evidence confirms a controller-level startup fault. It does not, by itself, prove that the visibly arched module caused the fault.
+POST also reported zero virtual drives on the affected adapter.
 
-## My fault assessment
+These messages confirm that the PERC H800 was unable to initialize normally during startup.
 
-| Priority | Finding | Why it matters | Confidence |
+The SDRAM-related error is technically relevant to the visually abnormal memory/cache module observed during the physical inspection.
+
+However, the available evidence does not prove that the mechanically stressed module is the root cause of the POST fault.
+
+---
+
+### Boot Device and Operating System Attempt
+
+After gaining access to the BIOS and startup process, I attempted to identify a valid boot source from which the server could load an operating system.
+
+Although multiple physical drives were installed in the system, no valid bootable disk or other boot source was detected.
+
+As a result, the server could proceed through POST and BIOS but could not continue into an operating system.
+
+This finding does **not** prove that the installed drives were defective.
+
+Possible causes could include:
+
+- No configured bootable RAID virtual disk
+- RAID controller initialization failure
+- Missing or unavailable operating system
+- Incorrect or missing boot configuration
+- Storage configuration issues
+
+No RAID arrays were initialized, cleared, recreated, or modified during the inspection in order to avoid altering potentially existing data.
+
+---
+
+## Visual Fault Assessment
+
+| Priority | Finding | Why It Matters | Status |
 |---|---|---|---|
-| High | PERC H800 enters a firmware fault state and reports an SDRAM connection error | The adapter cannot initialize normally and may block access to attached storage | Confirmed by POST |
-| High | RAID cache or memory module appears arched or mechanically stressed | A poor connector contact or damaged module could be related to the SDRAM error | Physical observation, cause unconfirmed |
-| Medium | CPU2 has no local memory | POST flags the configuration as unsupported and performance may suffer | Confirmed by POST and physical layout |
-| Medium | No bootable device was detected | The server cannot start an operating system in its current verified state | Confirmed by POST |
-| Medium | RAID battery condition is unknown | An aged or failed battery can disable write-back cache or generate controller warnings | Component confirmed, health untested |
-| Unknown | Drive health and RAID membership | Labels identify the disks but do not establish SMART health, array state, or data integrity | Not tested |
+| High | PERC H800 enters firmware fault state | Controller cannot initialize normally | Confirmed by POST |
+| High | PERC H800 reports SDRAM connection error | Indicates a RAID memory, connection, or controller issue | Confirmed by POST |
+| High | RAID memory/cache module appears visibly arched or mechanically stressed | Physical stress or poor contact may affect controller operation | Visual observation |
+| Medium | PERC H700 memory/cache module was loose | Improper seating could affect controller operation | Observed and reseated |
+| Medium | CPU2 installed without local memory | POST identifies an unsupported memory configuration | Confirmed by POST |
+| Medium | No bootable device detected | System cannot currently load an operating system | Confirmed during startup/BIOS assessment |
+| Medium | RAID battery condition unknown | Battery condition may affect RAID cache functionality | Not tested |
+| Unknown | Physical drive health | Installed drives were identified but not health-tested | Not tested |
+| Unknown | RAID membership and array state | Physical disks do not establish virtual disk configuration | Not tested |
 
-The strongest current hypothesis is a problem in the H800 cache/SDRAM path, connector seating, or the adapter itself. The observed physical deformation makes that area worth checking first, but replacement should not begin until the controller, module, and connectors are safely inspected and tested.
+---
 
-## Recommended next diagnostic session
+## Diagnostic Interpretation
 
-1. Disconnect power, follow ESD precautions, and photograph the controller and connectors before moving them.
-2. Identify exactly which physical adapter corresponds to the H800 POST fault.
-3. Inspect the cache module, socket, retaining clips, and battery cable for damage.
-4. Reseat the cache module and controller only if the hardware shows no unsafe damage.
-5. Boot again and record whether the SDRAM and firmware errors change.
-6. Enter the PERC configuration utilities and export or photograph the physical-disk and virtual-disk state.
-7. Balance memory across both processors using a configuration supported by the R510 manual.
-8. Run Dell diagnostics and review the hardware event log.
-9. Test the drives without initializing, clearing, or creating arrays until the value of any existing data is known.
+The strongest remaining technical concern is the RAID and storage subsystem.
 
-## What this project demonstrates
+POST confirms that the Dell PERC H800 enters a firmware fault state and reports an SDRAM-related error.
 
-- Safe physical access to rack-server hardware
-- Component identification from labels, board markings, firmware screens, and connection paths
-- Evidence-based separation of confirmed faults from hypotheses
-- Storage and RAID awareness, including the risk of destructive configuration changes
-- Clear technical documentation for a manager and for a future repair session
+Separately, the physical inspection identified a RAID memory/cache module that appeared visibly arched or mechanically stressed.
 
-## Repository guide
+The server also failed to identify a valid boot source from which an operating system could load.
+
+These findings indicate that the following areas may require additional investigation:
+
+- RAID controller initialization
+- RAID cache/SDRAM module condition
+- Cache module seating and connector condition
+- RAID virtual disk configuration
+- Boot configuration
+- Physical disk state
+
+The available evidence does not establish a single confirmed root cause.
+
+The visually abnormal module may be related to the SDRAM error, but this was not proven during the inspection.
+
+Likewise, the absence of a bootable device does not prove that the installed physical disks are defective.
+
+---
+
+## Validation
+
+The inspection and limited troubleshooting produced a documented hardware assessment that can be reviewed during future maintenance or diagnostic work.
+
+Validation included:
+
+- Server powered on successfully.
+- Video output was restored after limited hardware intervention.
+- BIOS information was captured.
+- POST detected both installed processors.
+- POST detected 12 GB of installed ECC memory.
+- The unsupported CPU2 memory configuration was documented.
+- The PERC H800 firmware fault was captured.
+- The PERC H800 SDRAM error was captured.
+- Installed SAS and SATA drives were physically identified.
+- RAID hardware was physically identified.
+- RAID battery information was documented.
+- A boot attempt was performed.
+- No valid bootable disk or operating system source was detected.
+- Components removed for documentation were returned to their original positions.
+
+The server was not considered fully repaired or production-ready.
+
+---
+
+## Skills Demonstrated
+
+- Enterprise server hardware inspection
+- Legacy server hardware documentation
+- Dell PowerEdge hardware identification
+- Safe component removal and reinstallation
+- Hardware label and part-number documentation
+- Intel Xeon server architecture awareness
+- ECC memory inspection and installation
+- SAS storage identification
+- SATA storage identification
+- Hot-swap drive identification
+- RAID controller identification
+- RAID cache/memory inspection
+- BIOS navigation
+- POST diagnostics
+- Boot-device assessment
+- Hardware fault assessment
+- Visual component damage assessment
+- Evidence-based troubleshooting
+- Data-preservation awareness
+- Technical documentation
+
+---
+
+## Evidence
+
+The repository includes selected photographs from the actual inspection documenting the physical server hardware and startup findings.
+
+Visual evidence includes:
+
+- Server exterior
+- Open chassis layout
+- Motherboard
+- Processor locations
+- CPU1 and CPU2 memory banks
+- Installed memory modules
+- Front SAS hot-swap drives
+- Internal SATA drives
+- Dell PERC H700
+- Dell PERC H800
+- RAID cache/memory hardware
+- RAID battery
+- Fan wall
+- Power supplies
+- USB 3.0 expansion card
+- Network interface card
+- POST memory warning
+- POST RAID error
+- BIOS information
+- Startup and boot-device observations
+
+Additional photographs can be found in the [`evidence/`](evidence/) directory.
+
+---
+
+## Repository Guide
 
 | Path | Contents |
 |---|---|
-| [`evidence/`](evidence/) | Selected photographs from the inspection |
+| [`evidence/`](evidence/) | Selected photographs from the physical inspection |
 | [`notes/component-inventory.md`](notes/component-inventory.md) | Detailed component inventory |
-| [`notes/fault-analysis.md`](notes/fault-analysis.md) | Reasoning behind the fault assessment |
+| [`notes/fault-analysis.md`](notes/fault-analysis.md) | Technical reasoning behind the fault assessment |
 | [`docs/Dell_PowerEdge_R510_Hands_On_Inspection_Report.pdf`](docs/Dell_PowerEdge_R510_Hands_On_Inspection_Report.pdf) | Formal inspection report |
 
-## Scope limits
+---
 
-This was a visual and startup inspection. I did not verify drive health, RAID configuration, usable capacity, operating system status, data contents, battery health, network connectivity, or long-duration stability. The initial no-video condition cleared later, but I did not capture a confirmed corrective action, so I have not assigned a root cause.
+## Scope Limits
+
+This project documents a physical hardware inspection, component inventory, visual fault assessment, POST/BIOS documentation, and limited startup testing.
+
+The server initially powered on without video output.
+
+During the inspection:
+
+- Three memory modules were installed in the CPU1 memory bank.
+- A loose PERC H700 memory/cache module was reseated.
+- A second RAID memory/cache module appeared mechanically stressed and was intentionally left untouched.
+
+After these actions, the server produced video output and proceeded through POST.
+
+BIOS and startup information were then inspected, and an attempt was made to identify a valid device from which an operating system could boot.
+
+No valid bootable device was detected.
+
+Because multiple hardware conditions changed before the successful second startup, the exact root cause of the original no-video condition was not isolated.
+
+The following were not fully verified:
+
+- Physical drive health
+- RAID level
+- RAID membership
+- Virtual disk state
+- Usable RAID capacity
+- Filesystem condition
+- Operating system installation or integrity
+- Existing data condition
+- RAID battery health
+- Network connectivity
+- Long-duration system stability
+
+No RAID arrays were intentionally initialized, cleared, recreated, or modified during this inspection.
+
+---
 
 ## Portfolio Context
 
 This project adds direct enterprise hardware inspection and legacy server fault assessment to a portfolio that also includes Windows administration, networking, Help Desk operations, PowerShell automation, endpoint management, and AI-assisted IT support.
 
-Unlike the virtualized infrastructure projects in the portfolio, this project documents direct hands-on interaction with physical enterprise server hardware, including controlled component removal, identification, reinstallation, startup testing, BIOS/POST assessment, boot-device investigation, and evidence-based fault documentation.
+Unlike the virtualized infrastructure projects in the portfolio, this project documents direct hands-on interaction with physical enterprise server hardware, including:
+
+- Controlled component removal
+- Hardware identification
+- Component reinstallation
+- Memory installation
+- RAID hardware inspection
+- Startup testing
+- BIOS and POST assessment
+- Boot-device investigation
+- Visual fault assessment
+- Evidence-based technical documentation
+
+---
 
 ## Author
 
