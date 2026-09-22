@@ -10,14 +10,14 @@ This inventory records what I could confirm during the physical inspection and s
 | Front disks | Dell-labeled Seagate Cheetah 15K.7 | 4 | SAS, 146 GB, 15K RPM, firmware EH02 | Removed-drive labels |
 | Empty front carriers | No disk installed | 2 | Visible empty carriers | Physical inspection |
 | Internal disks | WD Red WD10JFCX | 2 | SATA, 1 TB each, NASware 2.0 | Physical labels |
-| Internal RAID | Dell PERC H700 Integrated | 1 | DP/N 0R374M | Controller label |
+| Internal RAID | Dell PERC H700 Integrated | 1 |  | Controller label |
 | External RAID | Dell PERC H800 | 1 | Firmware package 12.10.2-0004 | POST |
-| RAID battery | Dell rechargeable lithium-ion battery | 1 | Type FR463, DP/N 0NU209, 3.7 V, 7 Wh | Physical label |
+| RAID battery | Dell rechargeable lithium-ion battery | 1 | Type FR463, 3.7 V, 7 Wh | Physical label |
 | Network | Broadcom 5716 dual-port Gigabit Ethernet | 1 integrated controller | NIC1 and NIC2 enabled | BIOS |
 | USB expansion | Add-in USB card | 1 | Black card with blue USB ports | Physical inspection |
-| Power supply | Dell/Delta D750P-S0 | 2 | 750 W, 80 Plus Platinum, DP/N 0FN1VT | Physical labels |
-| Cooling | Delta FFC0612DE fan modules | Approximately 5 visible | 12 V, 1.68 A, Dell P/N 304KC-A00 | Physical labels and inspection |
-| Motherboard | Dell system board | 1 | DP/N 0DPRKF | Physical label |
+| Power supply | Dell/Delta D750P-S0 | 2 | 750 W, 80 Plus Platinum | Physical labels |
+| Cooling | Delta FFC0612DE fan modules | Approximately 5 visible | 12 V, 1.68 A, Dell | Physical labels and inspection |
+| Motherboard | Dell system board | 1 | | Physical label |
 | Management | iDRAC6 | 1 | Firmware 1.70.21, configuration utility 1.61 | POST |
 | Backplane | Primary backplane | 1 | Firmware 1.10 | POST |
 
